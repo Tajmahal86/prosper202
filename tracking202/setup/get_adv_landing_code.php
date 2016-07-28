@@ -11,7 +11,7 @@ template_top($server_row,'Get Advanced Landing Page Code',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Setup an Advanced Landing Page - Get Code</h6>
+		<h6>Setup an Advanced Landing Page <?php showHelp("alp"); ?></h6>
 	</div>
 	<div class="col-xs-12">
 		<small>Select what landing page you wish to use, and then add all the different campaigns you plan on running with the landing page.</small>

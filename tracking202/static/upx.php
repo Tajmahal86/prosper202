@@ -71,6 +71,7 @@ SELECT
 	2c.click_cpc,
 	2c.click_lead,
 	2c.click_time,
+    2c.ppc_account_id,
 	2c1.c1,
 	2c2.c2,
 	2c3.c3,
@@ -124,6 +125,12 @@ $mysql['click_cpa'] = $db->real_escape_string($cvar_sql_row['click_cpa']);
 $mysql['click_lead'] = $db->real_escape_string($cvar_sql_row['click_lead']);
 $mysql['click_time'] = $db->real_escape_string($cvar_sql_row['click_time']);
 $mysql['referer'] = urlencode($db->real_escape_string($cvar_sql_row['site_url_address']));
+if( $db->real_escape_string($cvar_sql_row['ppc_account_id']) == '0'){
+    $mysql['ppc_account_id'] = '';    
+}
+else{
+$mysql['ppc_account_id'] = $db->real_escape_string($cvar_sql_row['ppc_account_id']);
+}
 
 if ($_GET['amount'] && is_numeric($_GET['amount'])) {
 	$mysql['use_pixel_payout'] = 1;
@@ -149,7 +156,8 @@ $tokens = array(
     "timestamp" => time(),
 	"payout" => $mysql['payout'],
 	"random" => mt_rand(1000000, 9999999),
-    "referer" => $mysql['referer']
+    "referer" => $mysql['referer'],
+    "sourceid" => $mysql['ppc_account_id']
 );
 
 $account_id_sql="SELECT 202_clicks.ppc_account_id

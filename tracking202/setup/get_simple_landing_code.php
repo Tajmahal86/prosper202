@@ -11,7 +11,7 @@ template_top($server_row,'Get Simple Landing Page Code',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Setup a Simple Landing Page</h6>
+		<h6>Setup a Simple Landing Page <?php showHelp("slp"); ?></h6>
 	</div>
 	<div class="col-xs-12">
 		<small>Here is where you need to setup your landing pages, installing the javascript and PHP code prior to getting your Text Ad Tracking Urls.</small>

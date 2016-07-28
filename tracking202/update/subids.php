@@ -73,7 +73,7 @@ template_top('Update Subids'); ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-4">
-				<h6>Update Your Subids</h6>
+				<h6>Update Your Subids <?php showHelp("update"); ?></h6>
 			</div>
 			<div class="col-xs-8">
 				<div class="success pull-right" style="margin-top: 20px;">

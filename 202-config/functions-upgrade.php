@@ -1211,7 +1211,7 @@ class UPGRADE
                 }
                 $p_count = $p_count + 1;
                 $sql .= "PARTITION p".$p_count." VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;";
-                $result = $db->query($sql);
+                $result = _mysqli_query($sql);
             }
             
             $sql = "CREATE TABLE IF NOT EXISTS `202_google` (
@@ -1396,9 +1396,6 @@ class UPGRADE
 
         // upgrade from 1.9.4 to 1.9.5
         if ($mysql_version == '1.9.4') {
-            
-            $sql = "ALTER TABLE 202_users ENGINE = INNODB";
-            $result = _mysqli_query($sql);
             
             $sql = "ALTER TABLE 202_users_pref 
                     ADD COLUMN `user_pref_cloak_referer` varchar(11) DEFAULT 'origin',
@@ -1690,7 +1687,7 @@ class UPGRADE
                 }
                 $p_count = $p_count + 1;
                 $sql .= "PARTITION p".$p_count." VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */;";
-                $result = $db->query($sql);
+                $result = _mysqli_query($sql);
             }
             
             $time_to = time();
@@ -2045,6 +2042,31 @@ class UPGRADE
         
             $mysql_version = '1.9.28';
         }
+        
+        if ($mysql_version == '1.9.28') {
+        
+            $sql="ALTER TABLE `202_users_pref` ADD COLUMN `user_pref_subid` bigint(20) unsigned DEFAULT NULL";
+            $result = _mysqli_query($sql);
+        
+            $sql = "UPDATE 202_version SET version='1.9.29'";
+            $result = _mysqli_query($sql);
+            
+            $mysql_version = '1.9.29';
+        }
+
+        if ($mysql_version == '1.9.29' || $mysql_version == '1.9.30a' || $mysql_version == '1.9.30b') {
+        
+            $sql="ALTER TABLE `202_users` ADD COLUMN `p202_customer_api_key` char(60) DEFAULT NULL";
+            $result = _mysqli_query($sql);
+        
+            $sql = "UPDATE 202_version SET version='1.9.30'";
+            $result = _mysqli_query($sql);
+            
+            $mysql_version = '1.9.30';
+        }
+        
+        
+        
         return true;
 
     }

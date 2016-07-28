@@ -38,7 +38,7 @@ $unSecuredUniversalPixelJS = '
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Get your Pixel or Post Back URL</h6>
+		<h6>Get your Pixel or Post Back URL <?php showHelp("step9"); ?></h6>
 	</div>
 	<div class="col-xs-12">
 		<small>By placing a conversion pixel on the advertiser page, everytime you get a

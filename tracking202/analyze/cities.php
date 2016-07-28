@@ -10,7 +10,7 @@ template_top('Analyze Incoming Cities',NULL,NULL,NULL); ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Analyze Incoming Cities</h6>
+		<h6>Analyze Incoming Cities <?php showHelp("analyze"); ?></h6>
 	</div>
 </div>
 

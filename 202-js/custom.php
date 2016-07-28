@@ -66,17 +66,20 @@ $(document).ready(function() {
 		var element = $("#aff-campaign-div");
 		var leave_behind = $("#leave_behind_div");
 		var lp_element = $("#lp_landing_page");
+		var placeholders = $("#placeholderslp");
         
         if ($(this).val() == 0) {
         	element.show();
         	leave_behind.show();
         	lp_element.hide();
         	load_aff_network_id();
-        	$("#aff_campaign_id").html("<option>--</option>").prop( "disabled", true );;
+        	$("#aff_campaign_id").html("<option>--</option>").prop( "disabled", true );
+        	placeholders.show();
         } else {
         	element.hide();
         	leave_behind.hide();
         	lp_element.show();
+        	placeholders.hide();
         }
     });
 
@@ -641,7 +644,7 @@ $(document).ready(function() {
 
 		netTypeInput.val(netType);
 		netNameInput.val($(this).find(':selected').text());
-
+        dni();
  	});
 
 	$('select').select2();
@@ -709,7 +712,33 @@ $(document).on('change', ':radio[name=chart_time_range]', function() {
 		        series: data.json.series
 			});
 			element.css("opacity", "1");
+			$(".modal-backdrop.fade.in").remove();
+	$('#buildChartModal').modal('toggle');	
+	
 	});
+
+});
+
+$(document).on("submit", "#upgradeAlertApiKey", function (e) {
+    e.preventDefault();
+    var $btn = $('#submitApiKey');
+    $btn.button('loading');
+    $.post("<?php echo get_absolute_url();?>202-account/ajax/upgrade_submit_api_key.php", $('#upgradeAlertApiKey').serialize(true))
+		.done(function(data) {
+		  	$btn.button('reset');
+		  	var parsedJson = $.parseJSON(data);
+		  	console.log(parsedJson);
+		  	if(parsedJson.error == false) {
+		  		$.post("<?php echo get_absolute_url();?>202-account/ajax/upgrade_submit_api_key.php", {get_alert_body: true})
+					.done(function(data) {
+						$('#noKeyBody').html(data);
+					  	$btn.button('reset');
+			    });
+		  	} else {
+		  		$btn.button('reset');
+		  		alert(parsedJson.msg);
+		  	}
+    }); 
 });
 
 $(document).on('click', '#add_more_chart_data_type', function(e) {
@@ -742,10 +771,12 @@ $(document).on('click', '#build_chart_form_submit', function() {
 
 	$.post("/tracking202/ajax/charts.php", {levels: levels, types: types})
 		.done(function(data) {
-			$('#buildChartModal').modal('hide');
 			set_user_prefs('<?php echo get_absolute_url();?>tracking202/ajax/account_overview.php');
+			
 	});
-	
+		$(".modal-backdrop.fade.in").remove();
+
+	$('#buildChartModal').modal('toggle');
 });
 
 //Rotator redirect type

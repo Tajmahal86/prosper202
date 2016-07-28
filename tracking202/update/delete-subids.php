@@ -69,7 +69,7 @@ template_top('Delete Subids',NULL,NULL,NULL); ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-4">
-				<h6>Delete Individual Subids</h6>
+				<h6>Delete Individual Subids <?php showHelp("update"); ?></h6>
 			</div>
 			<div class="col-xs-8">
 				<div class="success pull-right" style="margin-top: 20px;">

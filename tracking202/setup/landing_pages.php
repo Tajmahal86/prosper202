@@ -238,7 +238,7 @@ template_top($server_row,'Landing Page Setup',NULL,NULL,NULL);  ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-5">
-				<h6>Landing Page Setup (optional)</h6>
+				<h6>Landing Page Setup (optional) <?php showHelp("step4"); ?></h6>
 			</div>
 			<div class="col-xs-7">
 				<div class="<?php if($error) echo "error"; else echo "success";?> pull-right" style="margin-top: 20px;">
@@ -335,15 +335,16 @@ template_top($server_row,'Landing Page Setup',NULL,NULL,NULL);  ?>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[c4]]"/><br/><br/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[random]]"/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[referer]]"/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[gclid]]"/><br/><br/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_source]]"/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_medium]]"/><br/><br/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_campaign]]"/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_term]]"/><br/><br/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_content]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[sourceid]]"/><br/><br/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[gclid]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_source]]"/><br/><br/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_medium]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_campaign]]"/><br/><br/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_term]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_content]]"/><br/><br/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[payout]]"/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[cpc]]"/><br/><br/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[cpc2]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[cpc]]"/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[cpc2]]"/><br/><br/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[timestamp]]"/>
 					
 				</div>
@@ -384,7 +385,7 @@ template_top($server_row,'Landing Page Setup',NULL,NULL,NULL);  ?>
 				<ul class="list">
 	                <?php $mysql['user_id'] = $db->real_escape_string($_SESSION['user_id']);
 	                
-	                $landing_page_sql = "SELECT * FROM `202_landing_pages` WHERE `user_id`='".$mysql['user_id']."' AND landing_page_type='1' AND landing_page_deleted='0'";
+	                $landing_page_sql = "SELECT * FROM `202_landing_pages` WHERE `user_id`='".$mysql['user_id']."' AND landing_page_type='1' AND landing_page_deleted='0'  ORDER BY `landing_page_nickname` ASC";
 	                
 	                $landing_page_result = $db->query($landing_page_sql) or record_mysql_error($landing_page_sql);
 	              

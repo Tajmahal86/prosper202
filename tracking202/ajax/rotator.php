@@ -24,8 +24,7 @@ if (!empty($user_row['url']))
 		}
 	}
 
-	$lp_sql = "SELECT landing_page_id, landing_page_nickname, landing_page_type FROM 202_landing_pages JOIN 202_aff_campaigns using (aff_campaign_id) WHERE 202_landing_pages.user_id = '".$mysql['user_id']."' AND COALESCE(aff_campaign_deleted,0) = 0 AND COALESCE(landing_page_deleted,0) = 0 ORDER BY landing_page_type,landing_page_nickname";
-	
+	$lp_sql = "(SELECT landing_page_id,landing_page_nickname, landing_page_type FROM `202_landing_pages` AS 2lp JOIN 202_aff_campaigns using(aff_campaign_id) JOIN 202_aff_networks using(aff_network_id) WHERE 2lp.user_id='".$mysql['user_id']."' AND `landing_page_deleted`='0' AND aff_campaign_deleted='0' AND `aff_network_deleted`='0' ORDER BY `aff_campaign_id`, `landing_page_nickname` ASC) UNION (SELECT landing_page_id,landing_page_nickname,landing_page_type FROM `202_landing_pages` WHERE `user_id`='".$mysql['user_id']."' AND `landing_page_type`='1' AND `landing_page_deleted`='0' ORDER BY `landing_page_nickname` ASC)";
 	$lp_result = $db->query($lp_sql);
 	$lps = array();
 

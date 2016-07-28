@@ -30,12 +30,14 @@ $de_query = "SELECT count(*) as total, sum(processed) as done FROM 202_dataengin
 $de_result = $db->query($de_query);
 $de_row = $de_result->fetch_assoc();
 
-if ($de_result->num_rows) {
+if ($de_result->num_rows && $de_row['total'] != 0) {
     $de_total = $de_row['total'];
     $de_done = $de_row['done'];
+    $de_ratio = @round(($de_done / $de_total) * 100, 2);
 } else {
 	$de_total = '0';
 	$de_done = '0';
+	$de_ratio = '0';
 }
 
 $de_minutes = @round($de_total - $de_done, 0);
@@ -43,7 +45,7 @@ $de_minutes = @round($de_total - $de_done, 0);
 $d = floor ($de_minutes / 1440);
 $h = floor (($de_minutes - $d * 1440) / 60);
 $m = $de_minutes - ($d * 1440) - ($h * 60);
-$de_ratio = @round(($de_done / $de_total) * 100, 2);
+
 
 if (isset($_POST['autocron'])) {
 
@@ -405,8 +407,8 @@ function CronJobLastExecution($datetime) {
 <div class="row account">
 	<div class="col-xs-12">
 		<h6>MaxMind ISP/Carrier Lookup</h6>
-		<span class="infotext">To turn on ISP/Carrier lookup feature, you need
-			to buy MaxMind ISP database and upload (GeoIPISP.dat file) to <code><?php echo getTrackingDomain().'/202-config/geo/';?></code>
+		<span class="infotext"><span><a href="http://click202.com/tracking202/redirect/dl.php?t202id=9159015&t202kw=p202setup" target="_blank"><img src="<?php echo get_absolute_url();?>202-img/maxmind_logo-202.png"></a></span><br>To turn on ISP/Carrier lookup feature, you need
+			to <strong><a href="http://click202.com/tracking202/redirect/dl.php?t202id=9159015&t202kw=p202setup" target="_blank">buy MaxMind ISP database</a></strong> and upload (GeoIPISP.dat file) to <code><?php echo getTrackingDomain(). get_absolute_url().'202-config/geo/';?></code>
 			folder.<br />(Settings will take place after 5 minutes in live
 			traffic)
 		</span>

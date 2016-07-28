@@ -9,7 +9,7 @@ AUTH::require_user();
 template_top('Spy View',NULL,NULL,NULL); ?>
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Spy View</h6>
+		<h6>Spy View <?php showHelp("spy"); ?></h6>
 		<small>Spy is a live view of visitors interacting with your campaigns.</small>
 	</div>
 </div> 

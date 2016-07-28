@@ -10,7 +10,7 @@ template_top('Analyze Incoming ISP/Carrier',NULL,NULL,NULL); ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Analyze Incoming ISP/Carrier</h6>
+		<h6>Analyze Incoming ISP/Carrier <?php showHelp("analyze"); ?></h6>
 	</div>
 </div>
 

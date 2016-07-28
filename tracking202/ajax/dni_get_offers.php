@@ -105,7 +105,7 @@ if (isset($_GET['dni']) && isset($_GET['offer_id']) && isset($_GET['setup_offer'
 	$results = $db->query($sql);
 	if ($results->num_rows > 0) {
 		$dni = $results->fetch_assoc();
-		$aff_network_sql = "SELECT aff_network_id FROM 202_aff_networks WHERE dni_network_id = '".$mysql['dni_id']."'";
+		$aff_network_sql = "SELECT aff_network_id FROM 202_aff_networks WHERE dni_network_id = '".$mysql['dni_id']."' AND aff_network_deleted='0'";
 		$aff_network_results = $db->query($aff_network_sql);
 		$aff_network_row = $aff_network_results->fetch_assoc();
 		$offerData = setupDniOffer($dni['install_hash'], $dni['networkId'], $dni['apiKey'], $dni['affiliateId'], $_GET['offer_id'], $_GET['ddlci']);

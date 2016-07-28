@@ -10,11 +10,16 @@ $mysql['use_pixel_payout'] = 0;
 $mysql['cid'] = 0;
 $mysql['click_id'] = 0;
 
+switch($_SERVER['REQUEST_METHOD'])
+{
+    case 'GET': $the_request = &$_GET; break;
+    case 'POST': $the_request = &$_POST; break;
+}
 //first grab the subid
-if(array_key_exists('subid',$_GET) && is_numeric($_GET['subid'])) {
-	$mysql['click_id']= $db->real_escape_string($_GET['subid']);
-} elseif(array_key_exists('sid',$_GET) && is_numeric($_GET['sid'])) {
-	$mysql['click_id']= $db->real_escape_string($_GET['sid']);
+if(array_key_exists('subid',$the_request) && is_numeric($the_request['subid'])) {
+	$mysql['click_id']= $db->real_escape_string($the_request['subid']);
+} elseif(array_key_exists('sid',$the_request) && is_numeric($the_request['sid'])) {
+	$mysql['click_id']= $db->real_escape_string($the_request['sid']);
 } else {
 	header('HTTP/1.1 404 Not Found', true, 404);
 	header('Content-Type: application/json');
@@ -75,6 +80,7 @@ SELECT
 	2c.click_cpc,
 	2c.click_lead,
 	2c.click_time,
+    2c.ppc_account_id,
 	2c1.c1,
 	2c2.c2,
 	2c3.c3,
@@ -129,11 +135,17 @@ $mysql['click_cpa'] = $db->real_escape_string($cvar_sql_row['click_cpa']);
 $mysql['click_lead'] = $db->real_escape_string($cvar_sql_row['click_lead']);
 $mysql['click_time'] = $db->real_escape_string($cvar_sql_row['click_time']);
 $mysql['referer'] = urlencode($db->real_escape_string($cvar_sql_row['site_url_address']));
+if( $db->real_escape_string($cvar_sql_row['ppc_account_id']) == '0'){
+    $mysql['ppc_account_id'] = '';    
+}
+else{
+$mysql['ppc_account_id'] = $db->real_escape_string($cvar_sql_row['ppc_account_id']);
+}
 
-if ($_GET['amount'] && is_numeric($_GET['amount'])) {
+if ($the_request['amount'] && is_numeric($the_request['amount'])) {
 	$mysql['use_pixel_payout'] = 1;
-	$mysql['payout'] = $db->real_escape_string($_GET['amount']);
-	$mysql['click_payout'] = $db->real_escape_string($_GET['amount']);
+	$mysql['payout'] = $db->real_escape_string($the_request['amount']);
+	$mysql['click_payout'] = $db->real_escape_string($the_request['amount']);
 }
 
 $tokens = array(
@@ -154,7 +166,8 @@ $tokens = array(
     "timestamp" => time(),
 	"payout" => $mysql['payout'],
 	"random" => mt_rand(1000000, 9999999),
-    "referer" => $mysql['referer']
+    "referer" => $mysql['referer'],
+    "sourceid" => $mysql['ppc_account_id']
 );
 
 $account_id_sql="SELECT 202_clicks.ppc_account_id
@@ -252,9 +265,9 @@ if (is_numeric($mysql['click_id'])) {
 		$sql_set = "click_lead='1', click_filtered='0'";
 	}
 
-	if ($_GET['amount'] && is_numeric($_GET['amount'])) {
+	if ($the_request['amount'] && is_numeric($the_request['amount'])) {
 		$mysql['use_pixel_payout'] = 1;
-		$mysql['click_payout'] = $db->real_escape_string($_GET['amount']);
+		$mysql['click_payout'] = $db->real_escape_string($the_request['amount']);
 	}
 
 	$click_sql = "
@@ -309,4 +322,3 @@ if (is_numeric($mysql['click_id'])) {
 	$de = new DataEngine();
 	$data=($de->setDirtyHour($mysql['click_id']));
 }
-

@@ -9,7 +9,7 @@ AUTH::set_timezone($_SESSION['user_timezone']);
 template_top('Analyze Platforms',NULL,NULL,NULL); ?>
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Analyze Incoming Platforms</h6>
+		<h6>Analyze Incoming Platforms <?php showHelp("analyze"); ?></h6>
 	</div>
 </div>                                      
 

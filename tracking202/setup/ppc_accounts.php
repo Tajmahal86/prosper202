@@ -336,7 +336,7 @@ template_top('Traffic Sources',NULL,NULL,NULL); ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-5">
-				<h6>Traffic Source Account Setup</h6>
+				<h6>Traffic Source Account Setup <?php showHelp("step1"); ?></h6>
 			</div>
 			<div class="col-xs-7">
 				<div class="<?php if($error) echo "error"; else echo "success";?> pull-right" style="margin-top: 20px;">

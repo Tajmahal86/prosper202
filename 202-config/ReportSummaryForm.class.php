@@ -648,6 +648,12 @@ class ReportSummaryForm extends ReportBasicForm {
 				AND 2c.click_time <= " . $this->getEndTime() . " ";
 		;
 
+		if ($user_row['user_pref_subid']) {
+		    $mysql['user_pref_subid'] = $db->real_escape_string($user_row['user_pref_subid']);
+		    $info_sql .= "
+				AND 2c.click_id='".$mysql['user_pref_subid']."'
+			";
+		}
 	
 		if ($user_row['user_pref_show'] == 'real') {
 		    $info_sql .= "
@@ -4291,7 +4297,7 @@ class ReportSummaryTotalForm {
 			// Attempt to populate the form
 			foreach ($arg0 as $key => $value) {
 				if (is_array($value)) {
-					$entry = preg_replace("/_([a-zA-Z0-9])/e","strtoupper('\\1')",$key);
+					$entry = preg_replace_callback("/_([a-zA-Z0-9])/",function($m){return strtoupper($m[1]);},$key);
 					if (is_callable(array($this, 'add' . ucfirst($entry)),false, $callableName)) {
 						foreach ($value as $key2 => $value1) {
 							if (is_string($value1)) {
@@ -4301,7 +4307,7 @@ class ReportSummaryTotalForm {
 							}
 						}
 					} else {
-						$entry = preg_replace("/_([a-zA-Z0-9])/e","strtoupper('\\1')",$key);
+						$entry = preg_replace_callback("/_([a-zA-Z0-9])/",function($m){return strtoupper($m[1]);},$key);
 						if (is_callable(array($this, 'set' . ucfirst($entry)),false, $callableName)) {
 							if (is_string($value)) {
 								$this->{'set' . ucfirst($entry)}(trim($value));
@@ -4311,7 +4317,7 @@ class ReportSummaryTotalForm {
 						}
 					}
 				} else {
-					$entry = preg_replace("/_([a-zA-Z0-9])/e","strtoupper('\\1')",$key);
+					$entry = preg_replace_callback("/_([a-zA-Z0-9])/",function($m){return strtoupper($m[1]);},$key);
 					if (is_callable(array($this, 'set' . ucfirst($entry)),false, $callableName)) {
 						if (is_string($value)) {
 							$this->{'set' . ucfirst($entry)}(trim($value));

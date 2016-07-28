@@ -89,7 +89,7 @@ template_top('Smart Redirector',NULL,NULL,NULL); ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-5">
-				<h6>Smart Redirector Setup</h6>
+				<h6>Smart Redirector Setup <?php showHelp("step6"); ?></h6>
 			</div>
 			<div class="col-xs-7">
 				<div class="error pull-right" id="form_erors" style="display: none;margin-top: 20px;">

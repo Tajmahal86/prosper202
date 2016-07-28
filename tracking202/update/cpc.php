@@ -11,7 +11,7 @@ template_top('Update CPC',NULL,NULL,NULL);  ?>
 
 <div class="row">
 	<div class="col-xs-12">
-		<h6>Here is where you can update your CPCs</h6>
+		<h6>Update your CPCs <?php showHelp("update"); ?></h6>
 		<small>	Because T202 assumes that you are paying full CPC each time, we understand you won't be paying this each time.  So to refine your stats you can update your old history's cpc to make them more accurate.  Simply choose your setup below to update your cpc for a specific time period, and a specific set of variables.</small>
 	</div>
 </div>

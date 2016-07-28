@@ -19,7 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$mysql['user_pref_landing_page_id'] = $db->real_escape_string($_POST['landing_page_id']);  
 		$mysql['user_pref_country_id'] = $db->real_escape_string($_POST['country_id']);
 		$mysql['user_pref_region_id'] = $db->real_escape_string($_POST['region_id']);
-		$mysql['user_pref_isp_id'] = $db->real_escape_string($_POST['isp_id']);    
+		$mysql['user_pref_isp_id'] = $db->real_escape_string($_POST['isp_id']);
+		if(is_numeric($_POST['subid']) && $_POST['subid'] > 0){
+		    $mysql['user_pref_subid'] = $db->real_escape_string($_POST['subid']);}
+		else{
+		    $mysql['user_pref_subid'] = '';
+		}
 		$mysql['user_pref_ip'] = $db->real_escape_string($_POST['ip']);  
 		$mysql['user_pref_ref'] = $db->real_escape_string($_POST['referer']);  
 		$mysql['user_pref_keyword'] = $db->real_escape_string($_POST['keyword']);  
@@ -109,6 +114,7 @@ if (!$error) {
 							`user_pref_region_id`='".$mysql['user_pref_region_id']."',
 							`user_pref_isp_id`='".$mysql['user_pref_isp_id']."',
 							`user_pref_ip`='".$mysql['user_pref_ip']."',
+							`user_pref_subid`='".$mysql['user_pref_subid']."',
 							`user_pref_referer`='".$mysql['user_pref_ref']."',
 							`user_pref_keyword`='".$mysql['user_pref_keyword']."',
 							`user_pref_limit`='".$mysql['user_pref_limit']."',

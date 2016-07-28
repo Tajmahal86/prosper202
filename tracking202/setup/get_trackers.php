@@ -31,7 +31,7 @@ template_top('Get Trackers',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Get tracking links to be used in your campaigns</h6>
+		<h6>Get tracking links to be used in your campaigns <?php showHelp("step8"); ?></h6>
 	</div>
 	<div class="col-xs-12">
 		<small>Please make sure to test your links.<br/>If you are using a landing page, you should have already installed your landing page code prior to coming to this step.</small>
@@ -307,7 +307,7 @@ template_top('Get Trackers',NULL,NULL,NULL);  ?>
                                      LEFT JOIN 202_rotators AS 2r ON (2tr.rotator_id = 2r.id)
                                      LEFT JOIN 202_ppc_accounts AS 2ppc ON (2tr.ppc_account_id = 2ppc.ppc_account_id)
                                      LEFT JOIN (SELECT ppc_network_id, GROUP_CONCAT(parameter) AS parameters, GROUP_CONCAT(placeholder) AS placeholders FROM 202_ppc_network_variables GROUP BY ppc_network_id) AS 2pv ON (2ppc.ppc_network_id = 2pv.ppc_network_id)					                 
-					                 WHERE 2tr.user_id ='".$mysql ['user_id']."'";
+					                 WHERE 2tr.user_id ='".$mysql ['user_id']."' AND 2ac.aff_campaign_id != ''";
 
 					$trackers_result = $db->query($trackers_sql);
 

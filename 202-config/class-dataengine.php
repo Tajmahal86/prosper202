@@ -5,7 +5,7 @@
 } else {
     date_default_timezone_set($_SESSION['user_timezone']);
 } 
-  
+
 class DataEngine
 {
     private $total_clicks = '';
@@ -30,10 +30,10 @@ class DataEngine
         $timezone = new DateTimeZone(date_default_timezone_get()); // Get default system timezone to create a new DateTimeZone object
         $offset = $timezone->getOffset(new DateTime()); // Offset in seconds to UTC
         $offsetHours = round(($offset)/3600);
-        
+        if($offsetHours>=0)
+            $offsetHours='+'.$offsetHours;
         $tzSql="SET time_zone = '".$offsetHours.":00'";
-        if($offsetHours!=0)
-            $click_result = self::$db->query($tzSql);
+        $click_result = self::$db->query($tzSql);
           
     }
     
@@ -134,7 +134,9 @@ class DataEngine
         $user_row = $user_result->fetch_assoc();
         $breakdown = $user_row['user_pref_breakdown'];
         
+        
         if ($user_row['user_pref_show'] == 'all') { $click_filtered = ''; }
+        if ($user_row['user_pref_subid'] != '0' && !empty($user_row['user_pref_subid'])) { $click_filtered.= " AND 2st.click_id=".$user_row['user_pref_subid']; }
         if ($user_row['user_pref_show'] == 'real') { $click_filtered = " AND click_filtered='0' "; }
         if ($user_row['user_pref_show'] == 'filtered') { $click_filtered = " AND click_filtered='1' "; }
         if ($user_row['user_pref_show'] == 'filtered_bot') { $click_filtered = " AND click_bot='1' "; }
@@ -145,6 +147,7 @@ class DataEngine
         if ($user_row['user_pref_country_id'] != '0' && !empty($user_row['user_pref_country_id'])) { $click_filtered.= " AND 2st.country_id=".$user_row['user_pref_country_id']; }
         if ($user_row['user_pref_region_id'] != '0' && !empty($user_row['user_pref_region_id'])) { $click_filtered.= " AND 2st.region_id=".$user_row['user_pref_region_id']; }
         if ($user_row['user_pref_isp_id'] != '0' && !empty($user_row['user_pref_isp_id'])) { $click_filtered.= " AND 2st.isp_id=".$user_row['user_pref_isp_id']; }
+     
         
         // No PPC Network is set to 16777215 also the biggest number in the database. Because 0 is being used to indicate all ppc networks
         if ($user_row['user_pref_ppc_network_id'] == '16777215') {
@@ -563,6 +566,7 @@ ORDER BY aff_campaign_id ASC";
 
     function doBreakdownReport($clickFrom, $clickTo, $cpv)
     {
+        
         $mysql['from'] = $clickFrom;
         $mysql['to'] = $clickTo;
         $up = new UserPrefs();
@@ -1877,7 +1881,7 @@ rule_redirect_id=values(rule_redirect_id),
 aff_campaign_id=values(aff_campaign_id),
 aff_network_id=values(aff_network_id)"
         ;
-//echo $dsql;
+
         $result = $db->query($dsql);
     
        
@@ -2425,10 +2429,11 @@ aff_network_id=values(aff_network_id)";
         $mysql['from'] = self::$db->real_escape_string($from);
         $mysql['to'] = self::$db->real_escape_string($to);
         $click_filtered = $this->getAccountOverviewFilters();
-
+        
+        if($user_chart_data){
         foreach ($user_chart_data as $chart_data) {
             $chart[$chart_data['campaign_id']][] = $chart_data['value_type'];
-        }
+        }}
 
         $campaigns = array_keys($chart);
 
@@ -2501,13 +2506,14 @@ aff_network_id=values(aff_network_id)";
                 $types[] = array('type_name' => $typeName, 'sql_name' => $type);
             }   
 
-            if ($time_range == 'days') {
-                $rangeGroupby = "DAY(FROM_UNIXTIME(click_time))";
-                $rangeFormat = ", DATE_FORMAT(FROM_UNIXTIME(click_time),'%b %d %Y') AS date_range";
-            } else if ($time_range == 'hours') {
-                $rangeGroupby = "HOUR(FROM_UNIXTIME(click_time))";
+            if ($time_range == 'hours') {
+                $rangeGroupby = "DATE_FORMAT(FROM_UNIXTIME(click_time),'%b %d %Y %l:00%p')";
                 $rangeFormat = ", DATE_FORMAT(FROM_UNIXTIME(click_time),'%b %d %Y %l:00%p') AS date_range";
             }
+            else if ($time_range == 'days') {
+                $rangeGroupby = "DATE_FORMAT(FROM_UNIXTIME(click_time),'%b %d %Y')";
+                $rangeFormat = ", DATE_FORMAT(FROM_UNIXTIME(click_time),'%b %d %Y') AS date_range";
+            } 
 
             if ($campaign != '0') {
                 $rangeFormat .= ", aff_campaign_name";
@@ -2526,7 +2532,7 @@ aff_network_id=values(aff_network_id)";
             }
             $sqlObj .= $click_filtered." ";
             $sqlObj .= "GROUP BY ".$rangeGroupby.";";
-
+            
             $result = self::$db->query($sqlObj);
 
             while ($row = $result->fetch_assoc()) {
@@ -2592,9 +2598,11 @@ aff_network_id=values(aff_network_id)";
                     if ($time_range == 'days') {
                         $key = $range->format('M d Y');
                     } else if ($time_range == 'hours') {
-                        $key = $range->format('M d Y h:iA');
+                        $key = $range->format('M d Y g:iA');
                     }
                     if (isset($data['categories'][$key])) {
+                        //$seriesData[] = $data['data'][$data['categories'][$key]][$type['sql_name']];
+                       // print_r( $data['data'][$key][$type['sql_name']]);
                         $seriesData[] = $data['data'][$key][$type['sql_name']];
                     } else {
                         $seriesData[] = '0';

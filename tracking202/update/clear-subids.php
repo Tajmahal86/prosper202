@@ -11,7 +11,7 @@ template_top('Clear Subids',NULL,NULL,NULL);  ?>
 
 <div class="row">
 	<div class="col-xs-12">
-		<h6>Delete all subids for a specific campaign.</h6>
+		<h6>Delete all subids for a specific campaign <?php showHelp("update"); ?></h6>
 		<small>If you accidentally uploaded all of your subids, instead of only the converted subids, you can delete them all here, and then reupload again!</small>
 	</div>
 </div>

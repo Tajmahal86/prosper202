@@ -124,6 +124,12 @@ function display_calendar($page, $show_time, $show_adv, $show_bottom, $show_limi
     $html['from'] = date('m/d/Y', $time['from']);
     $html['to'] = date('m/d/Y', $time['to']);
     $html['ip'] = htmlentities($user_row['user_pref_ip'], ENT_QUOTES, 'UTF-8');
+    if($user_row['user_pref_subid'] != '0' && !empty($user_row['user_pref_subid'])){
+        $html['subid'] = htmlentities($user_row['user_pref_subid'], ENT_QUOTES, 'UTF-8');
+    }
+    else{
+        $html['subid'] = '';
+    }
     $html['user_pref_country_id'] = htmlentities($user_row['user_pref_country_id'], ENT_QUOTES, 'UTF-8');
     $html['user_pref_region_id'] = htmlentities($user_row['user_pref_region_id'], ENT_QUOTES, 'UTF-8');
     $html['user_pref_isp_id'] = htmlentities($user_row['user_pref_isp_id'], ENT_QUOTES, 'UTF-8');
@@ -221,10 +227,21 @@ function display_calendar($page, $show_time, $show_adv, $show_bottom, $show_limi
 							</div>
 
 							<div class="col-xs-6" style="text-align: right">
-								<label>Visitor IP: </label>
-								<div class="form-group">
-									<input type="text" class="form-control input-sm" name="ip"
-										id="ip" value="<?php echo $html['ip']; ?>" />
+								<div class="row">
+									<div class="col-xs-6">
+										<label>Subid: </label>
+										<div class="form-group">
+											<input type="text" class="form-control input-sm" name="subid"
+												id="subid" value="<?php echo $html['subid']; ?>" />
+										</div>
+									</div>
+									<div class="col-xs-6">
+										<label>Visitor IP: </label>
+										<div class="form-group">
+											<input type="text" class="form-control input-sm" name="ip"
+												id="ip" value="<?php echo $html['ip']; ?>" />
+										</div>
+									</div>
 								</div>
 							</div>
 
@@ -992,6 +1009,11 @@ function query($command, $db_table, $pref_time, $pref_adv, $pref_show, $pref_ord
     
     $click_sql = $command . " WHERE $db_table.user_id='" . $mysql['user_id'] . "' ";
     $count_where .= " WHERE $db_table.user_id='" . $mysql['user_id'] . "' ";
+
+    if ($user_row['user_pref_subid']) {
+        $mysql['user_landing_subid'] = $db->real_escape_string($user_row['user_pref_subid']);
+        $click_sql .= " AND      2c.click_id='" . $mysql['user_landing_subid'] . "'";
+    }
     
     // set show preferences
     if ($pref_show == true) {
@@ -1147,6 +1169,15 @@ function query($command, $db_table, $pref_time, $pref_adv, $pref_show, $pref_ord
         else
             $count_sql = $count_sql . $count_where;
         
+        if ($mysql['user_landing_subid']) {
+            $join= " AND 2c.";
+            if($isspy){
+                $join = " WHERE ";
+            }
+                
+            $count_sql .= $join."click_id='" . $mysql['user_landing_subid'] . "'";
+        }
+        
         if ($pref_limit == true) {
             $count_sql .= " LIMIT " . $pref_limit;
         }
@@ -1260,6 +1291,7 @@ function query($command, $db_table, $pref_time, $pref_adv, $pref_show, $pref_ord
         $click_sql = str_replace("2ca.", "2c.", $click_sql);
     }
     $query['click_sql'] = $click_sql;
+     
     return $query;
 }
 
@@ -2639,10 +2671,29 @@ function changelog()
     return json_decode($result, true);
 }
 
+function changelogPremium()
+{
+    // Initiate curl
+    $ch = curl_init();
+    // Set the url
+    curl_setopt($ch, CURLOPT_URL, 'http://my.tracking202.com/api/v2/premium-p202/logs');
+    // Disable SSL verification
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    // Will return the response, if false it print the response
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    // Execute
+    $result = curl_exec($ch);
+    
+    // close connection
+    curl_close($ch);
+    
+    return json_decode($result, true);
+}
+
 function callAutoCron($endpoint)
 {
     $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
-    $domain = $protocol . '' . getTrackingDomain();
+    $domain = $protocol . '' . getTrackingDomain(). get_absolute_url();
     $domain = base64_encode($domain);
     
     // Initiate curl
@@ -2665,7 +2716,7 @@ function callAutoCron($endpoint)
 function registerDailyEmail($time, $timezone, $hash)
 {
     $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
-    $domain = $protocol . '' . getTrackingDomain();
+    $domain = rtrim($protocol . '' . getTrackingDomain(). get_absolute_url(), '/');
     $domain = base64_encode($domain);
     
     if ($time) {
@@ -2722,7 +2773,7 @@ function tagUserByNetwork($install_hash, $type, $network)
 function getDNIHost()
 {
     $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
-    $domain = $protocol . '' . getTrackingDomain();
+    $domain = rtrim($protocol . '' . getTrackingDomain(). get_absolute_url(), '/');
     return base64_encode($domain);
 }
 
@@ -2920,6 +2971,104 @@ function setupDniOfferTrack($hash, $network, $key, $affId, $id, $ddlci = false)
     $result = curl_exec($ch);
     curl_close($ch);
     return $result;
+}
+
+function validateCustomersApiKey($key)
+{	
+	$fields = array(
+        'key' => $key
+    );
+
+    $fields = http_build_query($fields);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'http://my.tracking202.com/api/v2/validate-customers-key');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,0); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $result = json_decode($result, true);
+    return $result;
+}
+
+function showHelp($page)
+{
+    switch ($page) {
+        case 'step1':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=7158893&t202kw=";
+            break;
+        case 'step2':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=7158909&t202kw=";
+            break;
+        case 'step3':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=3158915&t202kw=";
+            break;
+        case 'step4':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=3158922&t202kw=";
+            break;
+        case 'step5':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=2158936&t202kw=";
+            break;
+        case 'step6':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=6158942&t202kw=";
+            break;
+        case 'step7':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=5158952&t202kw=";
+            break;
+            case 'slp':
+                $url = "http://click202.com/tracking202/redirect/dl.php?t202id=5158884&t202kw=";
+                break;
+                case 'alp':
+                    $url = "http://click202.com/tracking202/redirect/dl.php?t202id=3158798&t202kw=";
+                    break;
+        case 'step8':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=8158965&t202kw=";
+            break;
+        case 'step9':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=4158973&t202kw=";
+            break;
+        case 'overview':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=5158862&t202kw=";
+            break;
+            case 'groupoverview':
+                $url = "http://click202.com/tracking202/redirect/dl.php?t202id=4158853&t202kw=";
+                break;
+        case 'breakdown':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=3158819&t202kw=";
+            break;
+        case 'dayparting':
+        case 'weekparting':            
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=1158832&t202kw=";
+            break;
+        case 'analyze':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=8158803&t202kw=";
+            break;
+        case 'visitor':
+            case 'spy':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=1158987&t202kw=";
+            break;
+        case 'dni':
+            $url = "http://click202.com/tracking202/redirect/dl.php?t202id=3158846&t202kw=";
+            break;
+            case 'clickbank':
+                $url = "http://click202.com/tracking202/redirect/dl.php?t202id=4158829&t202kw=";
+                break;
+            case 'slack':
+                $url = "http://click202.com/tracking202/redirect/dl.php?t202id=1158876&t202kw=";
+                break;
+                case 'update':
+                    $url = "http://click202.com/tracking202/redirect/dl.php?t202id=5158996&t202kw=";
+                    break;
+    }
+
+    if ($url){
+        echo '<a href="'.$url.'helpdocs" class="btn btn-info btn-xs" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="Get Help"></span></a>';
+    }
+    
 }
 
 ?>

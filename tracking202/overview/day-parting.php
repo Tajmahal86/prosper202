@@ -7,7 +7,7 @@ template_top('Hourly Overview',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Hourly Overview</h6>
+		<h6>Hourly Overview <?php showHelp("dayparting"); ?></h6>
 		<small>The breakdown overview allows you to see your stats per hour average.</small>
 	</div>
 </div>

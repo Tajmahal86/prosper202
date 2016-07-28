@@ -8,7 +8,7 @@ template_top('Account Overview',NULL,NULL,NULL);   ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Account Overview Screen</h6>
+		<h6>Account Overview Screen <?php showHelp("overview"); ?></h6>
 		<small>The account overview screen gives you a quick glance at how all of your campaigns are currently performing.</small>
 	</div>
 </div>

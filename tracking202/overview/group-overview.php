@@ -7,7 +7,7 @@ template_top('Group Overview',NULL,NULL,NULL);   ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Group Overview Screen</h6>
+		<h6>Group Overview Screen <?php showHelp("groupoverview"); ?></h6>
 		<small>The group overview screen gives you a quick glance at all of your traffic across all dimensions.</small>
 	</div>
 </div>

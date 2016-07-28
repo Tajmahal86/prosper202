@@ -3,7 +3,7 @@ include_once(dirname( __FILE__ ) . '/functions-upgrade.php');
 //our own die, that will display the them around the error message
 
 function get_absolute_url() {
-	return substr(substr(dirname( __FILE__ ), 0,-10),strlen($_SERVER['DOCUMENT_ROOT']));
+	return substr(substr(dirname( __FILE__ ), 0,-10),strlen(realpath($_SERVER['DOCUMENT_ROOT'])));
 }
 
 function _die($message) { 
@@ -64,36 +64,43 @@ function info_top() { ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 
 <title>Prosper202 ClickServer</title>
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="description" content="description" />
-<meta name="keywords" content="keywords"/>
+<meta name="keywords" content="keywords" />
 <meta name="copyright" content="202, Inc" />
 <meta name="author" content="202, Inc" />
-<meta name="MSSmartTagsPreventParsing" content="TRUE"/>
+<meta name="MSSmartTagsPreventParsing" content="TRUE" />
 
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
-<meta http-equiv="imagetoolbar" content="no"/>
-  
-<link rel="shortcut icon" href="../202-img/favicon.gif" type="image/ico"/> 
+<meta http-equiv="imagetoolbar" content="no" />
+
+<link rel="shortcut icon" href="../202-img/favicon.gif" type="image/ico" />
 <!-- Loading Bootstrap -->
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"/>
+<link
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"
+	rel="stylesheet" />
 <!-- Loading Flat UI -->
-<link href="<?php echo get_absolute_url();?>202-css/css/flat-ui-pro.min.css" rel="stylesheet"/>
+<link
+	href="<?php echo get_absolute_url();?>202-css/css/flat-ui-pro.min.css"
+	rel="stylesheet" />
 <!-- Loading Custom CSS -->
-<link href="<?php echo get_absolute_url();?>202-css/custom.min.css" rel="stylesheet"/>
+<link href="<?php echo get_absolute_url();?>202-css/custom.min.css"
+	rel="stylesheet" />
 <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
 <!-- Load JS here -->
-    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script type="text/javascript"
+	src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type='text/javascript'>
 var googletag=googletag||{};googletag.cmd=googletag.cmd||[];(function(){var e=document.createElement("script");e.async=true;e.type="text/javascript";var t="https:"==document.location.protocol;e.src=(t?"https:":"http:")+"//www.googletagservices.com/tag/js/gpt.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)})()
 </script>
@@ -104,40 +111,20 @@ googletag.cmd.push(function(){googletag.defineSlot("/1006305/P202_CS_Login_Page_
 </head>
 <body>
 
-<div class="container">
+	<div class="container">
 	<?php } function info_bottom() { ?>
 </div>
 </body>
-</html> 
+</html>
 
 <?php } 
 
-function check_email_address($email) {
-// First, we check that there's one @ symbol, and that the lengths are right
- if (!ereg("^[^@]{1,64}@[^@]{1,255}$", $email)) {
- // Email invalid because wrong number of characters in one section, or wrong number of @ symbols.
- return false;
- }
- // Split it into sections to make life easier
- $email_array = explode("@", $email);
- $local_array = explode(".", $email_array[0]);
- for ($i = 0; $i < sizeof($local_array); $i++) {
- if (!ereg("^(([A-Za-z0-9!#$%&'*+/=?^_`{|}~-][A-Za-z0-9!#$%&'*+/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$", $local_array[$i])) {
- return false;
- }
- }
- if (!ereg("^\[?[0-9\.]+\]?$", $email_array[1])) { // Check if domain is IP. If not, it should be valid domain name
- $domain_array = explode(".", $email_array[1]);
- if (sizeof($domain_array) < 2) {
- return false; // Not enough parts to domain
- }
- for ($i = 0; $i < sizeof($domain_array); $i++) {
- if (!ereg("^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$", $domain_array[$i])) {
- return false;
- }
- }
- }
- return true;
+function check_email_address($email)
+{
+    if (filter_var($email, FILTER_VALIDATE_EMAIL))
+        return true;
+    else
+        return false;
 }
 
 function print_r_html($data,$return_data=false)
@@ -309,6 +296,19 @@ function update_needed () {
 		}
 	}   
 	
+}
+
+function check_premium_update() { 
+	global $version;
+	$json = file_get_contents('http://my.tracking202.com/api/v2/premium-p202/version');
+	$array = json_decode($json, true);
+	if ((version_compare($version, $array['version']) == '-1')) {
+		if (!is_writable(dirname( __FILE__ ). '/') || !function_exists('zip_open') || !function_exists('zip_read') || !function_exists('zip_entry_name') || !function_exists('zip_close')) {
+			$_SESSION['auto_upgraded_not_possible'] = true;
+		}
+		$_SESSION['premium_p202_details'] = $array;
+		return true;
+	}
 }
 
 function iphone() {

@@ -10,7 +10,7 @@ AUTH::require_user();
 template_top('Visitor History',NULL,NULL,NULL); ?>
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Visitor History</h6>
+		<h6>Visitor History <?php showHelp("visitor"); ?></h6>
 	</div>
 </div> 
 

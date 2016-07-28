@@ -7,7 +7,7 @@ template_top('Breakdown Overview',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Breakdown Overview</h6>
+		<h6>Breakdown Overview <?php showHelp("breakdown"); ?></h6>
 		<small>The breakdown overview allows you to see your stats per day, per hour, or an interval that you set.</small>
 	</div>
 </div>

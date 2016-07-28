@@ -33,13 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		switch ($user_row['chart_time_range']) {
 		    case 'hours':
-		        $rangeOutputFormat = 'M d h:iA';
+		        $rangeOutputFormat = 'M d g:iA';
 		    break;
 		            
 		    case 'days':
-		        $rangeOutputFormat = 'M d';
+		        $rangeOutputFormat = 'M d y';
 		    break;
 		}
+		
+		
 
 		$user_row['user_chart_data'] = unserialize($user_row['data']);
 		$rangePeriod = returnRanges($start, $end, $user_row['chart_time_range']);

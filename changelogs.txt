@@ -17,7 +17,7 @@ Version 1.9.29
 -- Fixed: Chart customization modal closes correctly
 -- Fixed: List of landing pages displayed correctly
 -- Fixed: Autocron was not registering correctly
-	
+
 Version 1.9.28
 -- Fixed: Group overview reporting on all ppc networks even when only one network was selected
 -- Fixed: New landing pages were not being saved

@@ -7,7 +7,7 @@ template_top('Hourly Overview',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Week Parting</h6>
+		<h6>Week Parting <?php showHelp("weekparting"); ?></h6>
 		<small>Here you can see what day of the week performs best.</small>
 	</div>
 </div>

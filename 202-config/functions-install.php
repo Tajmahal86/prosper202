@@ -101,7 +101,8 @@ class INSTALL {
           `user_active` int(1) NOT NULL DEFAULT '1',
           `user_deleted` int(1) NOT NULL DEFAULT '0',
 		  `secret_key` char(48) DEFAULT NULL,
-          `user_mods_lb` tinyint(1) unsigned NOT NULL DEFAULT '0',		    
+          `user_mods_lb` tinyint(1) unsigned NOT NULL DEFAULT '0',
+          `p202_customer_api_key` char(60) DEFAULT NULL,		    
 	       PRIMARY KEY (`user_id`),
 		   UNIQUE KEY `user_name_2` (`user_name`),
 		   KEY `user_name` (`user_name`,`user_pass`),
@@ -133,6 +134,7 @@ class INSTALL {
   `user_pref_browser_id` tinyint(3) unsigned DEFAULT NULL,
   `user_pref_platform_id` tinyint(3) unsigned DEFAULT NULL,
   `user_pref_isp_id` tinyint(3) unsigned DEFAULT NULL,
+  `user_pref_subid` bigint(20) unsigned DEFAULT NULL,
   `user_pref_ip` varchar(100) DEFAULT NULL,
   `user_pref_dynamic_bid` tinyint(1) NOT NULL DEFAULT '0',
   `user_pref_referer` varchar(100) DEFAULT NULL,
@@ -1454,7 +1456,7 @@ $sql = "
 	  `expires` int(11) NOT NULL,
 	  KEY `202_auth_keys_user_id_auth_key` (`user_id`,`auth_key`),
 	  KEY `202_auth_keys_expires` (`expires`)
-	)";
+	) ENGINE=InnoDB";
 $result = _mysqli_query($sql);
 
 

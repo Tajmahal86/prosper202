@@ -10,7 +10,7 @@ template_top('Analyze Your Text Advertisements',NULL,NULL,NULL); ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
-		<h6>Analyze Your Text Advertisements</h6>
+		<h6>Analyze Your Text Advertisements <?php showHelp("analyze"); ?></h6>
 	</div>
 </div>
 

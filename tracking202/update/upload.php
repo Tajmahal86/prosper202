@@ -13,7 +13,10 @@ function about_revenue_upload() {
 
 	echo '<div class="row">
 			<div class="col-xs-12">
-				<h6>Upload Revenue Report</h6>
+				<h6>Upload Revenue Report ';
+				showHelp("update");
+				
+				echo '</h6>
 				<small>This area allows you to upload the revenue reports from your affiliate networks.  You can now upload the exact sale amount that each subid generated, unlike before were T202 asummed the flat-payout on each item, you can now upload the exact revenue that was generated per subid.  This is specifcally helpfull if you are receiving a commission of a percentage based or if you constantly get more than one lead for each subid.</small>
 			</div>
 		</div>

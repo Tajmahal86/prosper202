@@ -346,6 +346,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		}
 	}
 
+	if ($_POST['update_p202_customer_api_key'] == '1') {
+		if ($_POST['token'] != $_SESSION['token']) { $error['token'] = 'You must use our forms to submit data.';  }
+		$mysql['p202_customer_api_key'] = $db->real_escape_string($_POST['p202_customer_api_key']);
+		$mysql['user_id'] = $db->real_escape_string($_SESSION['user_own_id']);
+		$validate = validateCustomersApiKey($_POST['p202_customer_api_key']);
+		if ($validate['code'] != 200) {
+			$error['p202_customer_api_key_invalid'] = "API key is not valid. Check your key and try again!";
+		}
+		if (!$error) {
+			$db->query("UPDATE 202_users SET p202_customer_api_key = '".$mysql['p202_customer_api_key']."' WHERE user_id = '".$mysql['user_id']."'");
+			$change_p202_customer_api_key = true;
+		}
+	}
+
 	if ($_POST['change_user_pass'] == '1') {
 			
 		//check token, and new user_pass
@@ -741,44 +755,36 @@ $html = array_map('htmlentities', $user_row);
 <div class="row form_seperator">
 	<div class="col-xs-12"></div>
 </div>
-<!-- 
+
 <div class="row account">
 	<div class="col-xs-12">
-		<h6>Prosper202 ClickServer API Key</h6>
+		<h6>Prosper202 Customer API Key</h6>
 	</div>
 	<div class="col-xs-4">
 		<div class="panel panel-default account_left">
 			<div class="panel-body">
-			    Update your Prosper202 ClickServer API Key. Warning: NEVER share your Prosper202 ClickServer API key with anyone!
+			    If you want to use special mods and paid features build into Prosper202, sign up <a href="http://my.tracking202.com/api/customers/register">here</a>, fill out yout billing information, receive and insert your API key here.
 			</div>
 		</div>
 	</div>
 	<div class="col-xs-8">
 		<form class="form-horizontal" style="padding-top:0px;" role="form" method="post" action="">
-		<input type="hidden" name="update_clickserver_api_key" value="1" />
+		<input type="hidden" name="update_p202_customer_api_key" value="1" />
 		<input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
-			<div class="form-group <?php if($error['clickserver_api_key']) echo "has-error";?>">
-				<label for="clickserver_api_key" class="col-xs-4 control-label">My ClickServer API Key:
-					<?php if($error['clickserver_api_key']) { ?> <span class="fui-alert" style="font-size: 12px;" data-toggle="tooltip" title="<?php echo $error['clickserver_api_key']; ?>"></span> <?php } ?>
-				</label>
-				<div class="col-xs-8">
-					<input type="text" class="form-control input-sm" id="clickserver_api_key" name="clickserver_api_key" value="<?php echo $html['clickserver_api_key']; ?>">
-				</div>
+		<div class="form-group">
+			<label for="p202_customer_api_key" class="col-xs-4 control-label">API key:</label>
+			<div class="col-xs-8">
+				<input type="text" class="form-control input-sm" id="p202_customer_api_key" name="p202_customer_api_key" value="<?php echo $html['p202_customer_api_key']; ?>">
 			</div>
-
-			<div class="form-group">
-				<div class="col-xs-8 col-xs-offset-4">
-					<button class="btn btn-md btn-p202 btn-block" type="submit">Update API Key</button>					
-				</div>
+		</div>
+		<div class="form-group">
+			<div class="col-xs-8 col-xs-offset-4">
+				<button class="btn btn-md btn-p202 btn-block" type="submit">Update API key</button>					
 			</div>
+		</div>
 		</form>
 	</div>
 </div>
- -->
-<div class="row form_seperator">
-	<div class="col-xs-12"></div>
-</div>
-
 
 <div class="row form_seperator">
 	<div class="col-xs-12"></div>

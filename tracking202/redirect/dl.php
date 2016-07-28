@@ -1,5 +1,4 @@
 <?php
-
 #only allow numeric t202ids
 $t202id = $_GET['t202id']; 
 if (!is_numeric($t202id)) die();
@@ -249,16 +248,20 @@ if (substr($keyword, 0, 8) == 't202var_') {
 
 $keyword = str_replace('%20',' ',$keyword);      
 $keyword_id = INDEXES::get_keyword_id($db, $keyword); 
-$mysql['keyword_id'] = $db->real_escape_string($keyword_id); 		  
+$mysql['keyword_id'] = $db->real_escape_string($keyword_id); 
+$mysql['keyword'] = $db->real_escape_string($keyword);		  
 
 $_lGET = array_change_key_case($_GET, CASE_LOWER); //make lowercase copy of get 
 //Get C1-C4 IDs
 for ($i=1;$i<=4;$i++){
     $custom= "c".$i; //create dynamic variable
     $custom_val=$db->real_escape_string($_lGET[$custom]); // get the value
-    $custom_val = str_replace('%20',' ',$custom_val);
-    $custom_id = INDEXES::get_custom_var_id($db, $custom, $custom_val); //get the id
-    $mysql[$custom.'_id']=$db->real_escape_string($custom_id); //save it
+    if(isset($custom_val) && $custom_val !=''){ //if there's a value get an id
+        $custom_val = str_replace('%20',' ',$custom_val);
+        $custom_id = INDEXES::get_custom_var_id($db, $custom, $custom_val); //get the id
+        $mysql[$custom.'_id']=$db->real_escape_string($custom_id); //save it
+        $mysql[$custom]=$db->real_escape_string($custom_val); //save it
+    }
 }
 
 $mysql['gclid']= $db->real_escape_string($_GET['gclid']);
@@ -289,6 +292,7 @@ else{
     $utm_source_id=0;
 }
 $mysql['utm_source_id']=$db->real_escape_string($utm_source_id);
+$mysql['utm_source']=$db->real_escape_string($utm_source);
 
 //utm_medium
 $utm_medium = $db->real_escape_string($_GET['utm_medium']);
@@ -301,6 +305,7 @@ else{
     $utm_medium_id=0;
 }
 $mysql['utm_medium_id']=$db->real_escape_string($utm_medium_id);
+$mysql['utm_medium']=$db->real_escape_string($utm_medium);
 
 //utm_campaign
 $utm_campaign = $db->real_escape_string($_GET['utm_campaign']);
@@ -313,6 +318,7 @@ else{
     $utm_campaign_id=0;
 }
 $mysql['utm_campaign_id']=$db->real_escape_string($utm_campaign_id);
+$mysql['utm_campaign']=$db->real_escape_string($utm_campaign);
 
 //utm_term
 $utm_term = $db->real_escape_string($_GET['utm_term']);
@@ -325,6 +331,7 @@ else{
     $utm_term_id=0;
 }
 $mysql['utm_term_id']=$db->real_escape_string($utm_term_id);
+$mysql['utm_term']=$db->real_escape_string($utm_term);
 
 //utm_content
 $utm_content = $db->real_escape_string($_GET['utm_content']);
@@ -337,6 +344,7 @@ else{
     $utm_content_id=0;
 }
 $mysql['utm_content_id']=$db->real_escape_string($utm_content_id);
+$mysql['utm_content']=$db->real_escape_string($utm_content);
     
 
 $device_id = PLATFORMS::get_device_info($db,$detect,$_GET['ua']);
@@ -365,13 +373,15 @@ $GeoData = getGeoData($ip_address);
 
 $country_id = INDEXES::get_country_id($db, $GeoData['country'], $GeoData['country_code']);
 $mysql['country_id'] = $db->real_escape_string($country_id);
+$mysql['country'] = $db->real_escape_string($GeoData['country']);
 
 $region_id = INDEXES::get_region_id($db, $GeoData['region'], $mysql['country_id']);
 $mysql['region_id'] = $db->real_escape_string($region_id);
+$mysql['region'] = $db->real_escape_string($GeoData['city']);
 
 $city_id = INDEXES::get_city_id($db, $GeoData['city'], $mysql['country_id']);
 $mysql['city_id'] = $db->real_escape_string($city_id);
-
+$mysql['city'] = $db->real_escape_string($GeoData['city']);
 
 if ($tracker_row['maxmind_isp'] == '1') {
 	$IspData = getIspData($ip_address);
@@ -432,31 +442,17 @@ if ($total_vars > 0) {
 }
 
 // insert gclid and utm vars
-$click_sql = "INSERT INTO   202_google
-			  SET           	click_id='".$mysql['click_id']."',
-							gclid = '".$mysql['gclid']."',
-                            utm_source_id = '".$mysql['utm_source_id']."',
-                            utm_medium_id = '".$mysql['utm_medium_id']."',
-utm_campaign_id = '".$mysql['utm_campaign_id']."',
-utm_term_id = '".$mysql['utm_term_id']."',
-utm_content_id = '".$mysql['utm_content_id']."'";
-$click_result = $db->query($click_sql) or record_mysql_error($db, $click_sql);
-
-//ok we have the main data, now insert this row
-$click_sql = "INSERT INTO   202_clicks_spy
-			  SET           	click_id='".$mysql['click_id']."',
-							user_id = '".$mysql['user_id']."',   
-							aff_campaign_id = '".$mysql['aff_campaign_id']."',   
-							ppc_account_id = '".$mysql['ppc_account_id']."',   
-							click_cpc = '".$mysql['click_cpc']."',   
-							click_payout = '".$mysql['click_payout']."',   
-							click_filtered = '".$mysql['click_filtered']."',
-							click_bot = '".$mysql['click_bot']."',
-							click_alp = '".$mysql['click_alp']."',
-							click_time = '".$mysql['click_time']."'"; 
-$click_result = $db->query($click_sql) or record_mysql_error($db, $click_sql);   
-
-
+if ($mysql['gclid'] || $mysql['utm_source_id'] || $mysql['utm_medium_id'] || $mysql['utm_campaign_id'] || $mysql['utm_term_id'] || $mysql['utm_content_id']) {
+    $click_sql = "INSERT INTO   202_google
+			  SET           	click_id='" . $mysql['click_id'] . "',
+							gclid = '" . $mysql['gclid'] . "',
+                            utm_source_id = '" . $mysql['utm_source_id'] . "',
+                            utm_medium_id = '" . $mysql['utm_medium_id'] . "',
+utm_campaign_id = '" . $mysql['utm_campaign_id'] . "',
+utm_term_id = '" . $mysql['utm_term_id'] . "',
+utm_content_id = '" . $mysql['utm_content_id'] . "'";
+    $click_result = $db->query($click_sql) or record_mysql_error($db, $click_sql);
+}
 
 //now we have the click's advance data, now insert this row
 $click_sql = "INSERT INTO   202_clicks_advance
@@ -545,8 +541,7 @@ if ($cloaking_on == true) {
 
 //rotate the urls
 $redirect_site_url = rotateTrackerUrl($db, $tracker_row);
-
-$redirect_site_url = replaceTrackerPlaceholders($db, $redirect_site_url,$click_id);
+$redirect_site_url = replaceTrackerPlaceholders($db, $redirect_site_url,$click_id,$mysql);
 
 
 $click_redirect_site_url_id = INDEXES::get_site_url_id($db, $redirect_site_url); 
@@ -559,21 +554,6 @@ $click_sql = "INSERT INTO   202_clicks_site
 							click_outbound_site_url_id='".$mysql['click_outbound_site_url_id']."',
 							click_redirect_site_url_id='".$mysql['click_redirect_site_url_id']."'";
 $click_result = $db->query($click_sql) or record_mysql_error($db, $click_sql);   
-
-
-
-//update the click summary table 
-
-	$now = time();
-
-	$today_day = date('j', time());
-	$today_month = date('n', time());
-	$today_year = date('Y', time());
-
-	//the click_time is recorded in the middle of the day
-	$click_time = mktime(12,0,0,$today_month,$today_day,$today_year);
-	$mysql['click_time'] = $db->real_escape_string($click_time);
-
  
 if ($mysql['click_cpa'] != NULL) {
 	$insert_sql = "INSERT INTO 202_cpa_trackers
@@ -596,7 +576,7 @@ if (isset($_COOKIE['p202_ipx'])) {
 
 //get and prep extra stuff for pre-pop or data passing
 $urlvars = getPrePopVars($_GET);
-
+unset($mysql);
 //now we've recorded, now lets redirect them
 if ($cloaking_on == true) {
 	//if cloaked, redirect them to the cloaked site. 
@@ -604,3 +584,5 @@ if ($cloaking_on == true) {
 } else {
 	header('location: '.setPrePopVars($urlvars,$redirect_site_url,false));
 } 
+
+die();

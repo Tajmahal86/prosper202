@@ -11,7 +11,7 @@ template_top($server_row,'Get Landing Page Code',NULL,NULL,NULL);  ?>
 
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-5">
-		<h6>Get Landing Code (Optional)</h6>
+		<h6>Get Landing Code (Optional) <?php showHelp("step7"); ?></h6>
 	</div>
 	<div class="col-xs-12">
 		<small>You only need to use this step if you are using a landing page setup, if you are using direct linking, ignore this step! If you using a landing page please click on the type of landing page you wish to get your code for.</small>

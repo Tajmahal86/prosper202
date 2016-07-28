@@ -14,6 +14,7 @@ $mysql['user_own_id'] = $db->real_escape_string($_SESSION['user_own_id']);
 $user_sql = "SELECT 2u.user_name as username, 2up.user_slack_incoming_webhook AS url, 2u.install_hash FROM 202_users AS 2u INNER JOIN 202_users_pref AS 2up ON (2up.user_id = 1) WHERE 2u.user_id = '".$mysql['user_own_id']."'";
 $user_results = $db->query($user_sql);
 $user_row = $user_results->fetch_assoc();
+$dniNetworks = getAllDniNetworks($user_row['install_hash']);
 
 $rotateUrlCampaignsSql = "SELECT * FROM 202_aff_campaigns WHERE user_id = '".$mysql['user_id']."' AND aff_campaign_deleted = 0 AND aff_campaign_rotate = 1";
 $rotateUrlCampaignsResults = $db->query($rotateUrlCampaignsSql);
@@ -66,7 +67,7 @@ if ($_SERVER ['REQUEST_METHOD'] == 'POST') {
 	} else {
 		$aff_network_row = $aff_network_result->fetch_assoc();
 	}
-	
+	 
 	//if editing, check to make sure the own the campaign they are editing
 	if ($editing == true) {
 		$mysql ['aff_campaign_id'] = $db->real_escape_string ( $_POST ['aff_campaign_id'] );
@@ -269,8 +270,8 @@ template_top ( 'Affiliate Campaigns Setup', NULL, NULL, NULL );
 <div class="row" style="margin-bottom: 15px;">
 	<div class="col-xs-12">
 		<div class="row">
-			<div class="col-xs-4">
-				<h6>Campaign Setup</h6>
+			<div class="col-xs-5">
+				<h6>Campaign Setup <?php showHelp("step3"); ?></h6>
 			</div>
 			<div class="col-xs-8">
 				<div class="<?php if($error) echo "error"; else echo "success";?> pull-right" style="margin-top: 20px;">
@@ -393,7 +394,8 @@ template_top ( 'Affiliate Campaigns Setup', NULL, NULL, NULL );
 				    <input type="button" class="btn btn-xs btn-primary" value="[[c4]]"/><br/><br/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[random]]"/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[referer]]"/>
-				    <input type="button" class="btn btn-xs btn-primary" value="[[gclid]]"/><br/><br/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[sourceid]]"/><br/><br/>
+				    <input type="button" class="btn btn-xs btn-primary" value="[[gclid]]"/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_source]]"/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_medium]]"/><br/><br/>
 				    <input type="button" class="btn btn-xs btn-primary" value="[[utm_campaign]]"/>
@@ -479,17 +481,29 @@ template_top ( 'Affiliate Campaigns Setup', NULL, NULL, NULL );
 			<div class="panel-heading">My Campaigns</div>
 			<div class="panel-body">
 			<div id="campaignList">
+			<?php 
+			function checkNetworks(&$item1, $key, $dni)
+			{
+			    $name=$item1['networkId'];
+			    if($name===$dni){
+			        $item1['networkId']="skip";
+			    }
+			}			
+			?>
 			<input class="form-control input-sm search" style="margin-bottom: 10px; height: 30px;" placeholder="Filter">
 				<ul class="list">        
 					<?php
+					
 					$mysql ['user_id'] = $db->real_escape_string ( $_SESSION ['user_id'] );
-					$aff_network_sql = "SELECT 2af.user_id, 2af.aff_network_id, 2af.aff_network_name, 2af.dni_network_id, 2dni.favicon, 2dni.processed FROM 202_aff_networks AS 2af LEFT JOIN 202_dni_networks AS 2dni ON (2af.dni_network_id = 2dni.id) WHERE 2af.user_id='" . $mysql ['user_id'] . "' AND 2af.aff_network_deleted='0' ORDER BY 2af.aff_network_name ASC";
+					$aff_network_sql = "SELECT 2af.user_id, 2af.aff_network_id, 2dni.networkid, 2af.aff_network_name, 2af.dni_network_id, 2dni.favicon, 2dni.processed FROM 202_aff_networks AS 2af LEFT JOIN 202_dni_networks AS 2dni ON (2af.dni_network_id = 2dni.id) WHERE 2af.user_id='" . $mysql ['user_id'] . "' AND 2af.aff_network_deleted='0' ORDER BY 2af.dni_network_id desc,2af.aff_network_name ASC";
 				
 					$aff_network_result = $db->query ( $aff_network_sql ) or record_mysql_error ( $aff_network_sql );
 					if ($aff_network_result->num_rows == 0) {
-						?><li>You have not added any networks.</li><?php
+						?><li>You have not activated any networks.</li><?php
 					}
 					
+					
+                   
 					while ( $aff_network_row = $aff_network_result->fetch_array (MYSQLI_ASSOC) ) {
 						$html ['aff_network_name'] = htmlentities ( $aff_network_row ['aff_network_name'], ENT_QUOTES, 'UTF-8' );
 						$url ['aff_network_id'] = urlencode ( $aff_network_row ['aff_network_id'] );
@@ -498,11 +512,12 @@ template_top ( 'Affiliate Campaigns Setup', NULL, NULL, NULL );
 							if ($aff_network_row['processed'] == false) { 
 								$dni_is_live = "<span style='font-size:10px'>processing... <img src='".get_absolute_url()."202-img/loader-small.gif'></span>";
 							} else {
-								$dni_is_live = '<a href="#" class="openDniSearchOffersModal" data-dni-id="'.$aff_network_row['dni_network_id'].'">search offers</a>';
-								$dni_logo = '<img src="'.$aff_network_row['favicon'].'" width=16>&nbsp;&nbsp;'; //replace with actual logo from db
+								$dni_is_live = '<a href="#" class="openDniSearchOffersModal" data-dni-id="'.$aff_network_row['dni_network_id'].'">Search Offers</a>';
+								 
 							}
-
+							$dni_logo = '<img src="'.$aff_network_row['favicon'].'" width=16>&nbsp;&nbsp;';
 							printf ( '<li>%s<strong>%s</strong> - %s</li>',$dni_logo, $html['aff_network_name'], $dni_is_live);
+							array_walk($dniNetworks, 'checkNetworks', $aff_network_row ['networkid']);
 						} else {
 							printf ( '<li><strong>%s</strong></li>', $html['aff_network_name']);
 						}
@@ -535,9 +550,15 @@ template_top ( 'Affiliate Campaigns Setup', NULL, NULL, NULL );
 								}
 							}
 						}
-						
+
 						?></ul><?php
 					
+					}
+					
+					arsort($dniNetworks);
+					foreach ($dniNetworks as $dninetwork) {
+					    if($dninetwork['networkId']!='skip')
+					        echo "<li><img src='".$dninetwork['favIconUrl']."' width=16>&nbsp;&nbsp;<strong>".$dninetwork['name']." (DNI)</strong> - <a href=".get_absolute_url()."202-account/api-integrations.php?add_dni_network=".$dninetwork['networkId'].">Activate</a></li>";
 					}
 					?>
 				</ul>

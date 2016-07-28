@@ -143,7 +143,7 @@ xmlhttp.onreadystatechange = function() {
 	}
 }
 
-var get_custom_vars_url = '<?php echo $strProtocol; ?>://<?php echo getTrackingDomain() . get_absolute_url(); ?>/tracking202/static/get_custom_vars.php?t202id=' + t202GetVar('t202id');
+var get_custom_vars_url = '<?php echo $strProtocol; ?>://<?php echo getTrackingDomain() . get_absolute_url(); ?>tracking202/static/get_custom_vars.php?t202id=' + t202GetVar('t202id');
 xmlhttp.open("GET",get_custom_vars_url,true);
 xmlhttp.send();
 
@@ -185,7 +185,7 @@ function t202Init(vars){
     }
 	
 	language = language.substr(0,2); 
-	var rurl="<?php echo $strProtocol; ?>://<?php echo getTrackingDomain() . get_absolute_url(); ?>/tracking202/static/record.php?lpip=" + t202Enc(lpip)
+	var rurl="<?php echo $strProtocol; ?>://<?php echo getTrackingDomain() . get_absolute_url(); ?>tracking202/static/record.php?lpip=" + t202Enc(lpip)
 		+ "&t202id="				+ t202Enc(t202id)
 		+ "&t202kw="				+ t202kw
 		+ "&t202ref="				+ t202Enc(t202ref)

@@ -22,7 +22,7 @@ if ($result->num_rows) {
         
         for ($i = $mysql['click_time_from']; $i < $mysql['click_time_to']; $i = $i + 3599) {
             $nextval = $i + 3599;
-            $urls[] = 'http://' . getTrackingDomain() .get_absolute_url(). '/202-cronjobs/dej.php?s=' . $i . '&e=' . $nextval;
+            $urls[] = 'http://' . getTrackingDomain() .get_absolute_url(). '202-cronjobs/dej.php?s=' . $i . '&e=' . $nextval;
         }
 
       

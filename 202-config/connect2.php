@@ -1,7 +1,7 @@
 <?php
 use UAParser\Parser;
 
-$version = '1.9.28';
+$version = '1.9.30';
 
 DEFINE('ROOT_PATH', substr(dirname( __FILE__ ), 0,-10));
 DEFINE('CONFIG_PATH', dirname( __FILE__ ));
@@ -266,13 +266,42 @@ function rotateTrackerUrl($db, $tracker_row)
     return $url;
 }
 
-function replaceTrackerPlaceholders($db, $url, $click_id)
+function replaceTrackerPlaceholders($db, $url, $click_id, $mysql='')
 {
 
     // get the tracker placeholder values
     $mysql['click_id'] = $db->real_escape_string($click_id);
+    //$url = preg_replace('/\[\[subid\]\]/i', $mysql['click_id'], $url);
+    $tokens = array(
+        "subid" => $mysql['click_id'],
+        "t202kw" => $mysql['keyword'],
+        "c1" => $mysql['c1'],
+        "c2" => $mysql['c2'],
+        "c3" => $mysql['c3'],
+        "c4" => $mysql['c4'],
+        "gclid" => $mysql['gclid'],
+        "utm_source" => $mysql['utm_source'],
+        "utm_medium" => $mysql['utm_medium'],
+        "utm_campaign" => $mysql['utm_campaign'],
+        "utm_term" => $mysql['utm_term'],
+        "utm_content" => $mysql['utm_content'],
+        "country" => $mysql['country'],
+        "country_code" => $mysql['country_code'],
+        "region" => $mysql['region'],
+        "city" => $mysql['city'],
+        "cpc" => round($mysql['click_cpc'], 2),
+        "cpc2" => $mysql['click_cpc'],
+        "timestamp" => time(),
+        "payout" => $mysql['click_payout'],
+        "random" => mt_rand(1000000, 9999999),
+        "referer" => $mysql['referer'],
+        "sourceid" => $mysql['ppc_account_id']
+    );
+    
+    $url = (replaceTokens($url, $tokens));
     
     if (preg_match('/\[\[(.*)\]\]/', $url)) {
+       
         $click_sql = "
 			SELECT 2c.click_id, 
                 2tc1.c1, 
@@ -282,6 +311,7 @@ function replaceTrackerPlaceholders($db, $url, $click_id)
                 2kw.keyword,
             	2c.click_payout,
             	2c.click_cpc,
+                2c.ppc_account_id,
             	2g.gclid,
             	2us.utm_source,
             	2um.utm_medium,
@@ -333,6 +363,12 @@ function replaceTrackerPlaceholders($db, $url, $click_id)
         $mysql['region'] = $db->real_escape_string($click_row['region_name']);
         $mysql['city'] = $db->real_escape_string($click_row['city_name']);
         $mysql['referer'] = urlencode($db->real_escape_string($_SERVER['HTTP_REFERER']));
+        if( $db->real_escape_string($cvar_sql_row['ppc_account_id']) == '0'){
+            $mysql['ppc_account_id'] = '';    
+        }
+        else{
+            $mysql['ppc_account_id'] = $db->real_escape_string($cvar_sql_row['ppc_account_id']);
+        }
         
         $tokens = array(
             "subid" => $mysql['click_id'],
@@ -356,7 +392,8 @@ function replaceTrackerPlaceholders($db, $url, $click_id)
             "timestamp" => time(),
             "payout" => $mysql['payout'],
             "random" => mt_rand(1000000, 9999999),
-            "referer" => $mysql['referer']
+            "referer" => $mysql['referer'],
+            "sourceid" => $mysql['ppc_account_id']
         );
         
         $url = (replaceTokens($url, $tokens));
@@ -1580,33 +1617,55 @@ function foreach_memcache_mysql_fetch_assoc($db, $sql, $allowCaching = 1)
 function replaceTokens($url, $tokens = Array())
 {
     $tokens = array_map('rawurlencode', $tokens);
-    $url = preg_replace('/\[\[c1\]\]/i', $tokens['c1'], $url);
-    $url = preg_replace('/\[\[c2\]\]/i', $tokens['c2'], $url);
-    $url = preg_replace('/\[\[c3\]\]/i', $tokens['c3'], $url);
-    $url = preg_replace('/\[\[c4\]\]/i', $tokens['c4'], $url);
     
-    $url = preg_replace('/\[\[gclid\]\]/i', $tokens['gclid'], $url);
-    $url = preg_replace('/\[\[utm_source\]\]/i', $tokens['utm_source'], $url);
-    $url = preg_replace('/\[\[utm_medium\]\]/i', $tokens['utm_medium'], $url);
-    $url = preg_replace('/\[\[utm_campaign\]\]/i', $tokens['utm_campaign'], $url);
-    $url = preg_replace('/\[\[utm_term\]\]/i', $tokens['utm_term'], $url);
-    $url = preg_replace('/\[\[utm_content\]\]/i', $tokens['utm_content'], $url);
-    
-    $url = preg_replace('/\[\[subid\]\]/i', $tokens['subid'], $url);
-    $url = preg_replace('/\[\[t202kw\]\]/i', $tokens['t202kw'], $url);
-    $url = preg_replace('/\[\[payout\]\]/i', $tokens['payout'], $url);
-    $url = preg_replace('/\[\[random\]\]/i', $tokens['random'], $url);
-    $url = preg_replace('/\[\[cpc\]\]/i', $tokens['cpc'], $url);
-    $url = preg_replace('/\[\[cpc2\]\]/i', $tokens['cpc2'], $url);
-    $url = preg_replace('/\[\[timestamp\]\]/i', $tokens['timestamp'], $url);
-    
-    $url = preg_replace('/\[\[country\]\]/i', $tokens['country'], $url);
-    $url = preg_replace('/\[\[country_code\]\]/i', $tokens['country_code'], $url);
-    $url = preg_replace('/\[\[region\]\]/i', $tokens['region'], $url);
-    $url = preg_replace('/\[\[city\]\]/i', $tokens['city'], $url);
-    
-    $url = preg_replace('/\[\[referer\]\]/i', $tokens['referer'], $url);
-    $url = preg_replace('/\[\[referrer\]\]/i', $tokens['referer'], $url);
+    if ($tokens['c1'])
+        $url = preg_replace('/\[\[c1\]\]/i', $tokens['c1'], $url);
+    if ($tokens['c2'])
+        $url = preg_replace('/\[\[c2\]\]/i', $tokens['c2'], $url);
+    if ($tokens['c3'])
+        $url = preg_replace('/\[\[c3\]\]/i', $tokens['c3'], $url);
+    if ($tokens['c4'])
+        $url = preg_replace('/\[\[c4\]\]/i', $tokens['c4'], $url);
+    if ($tokens['gclid'])
+        $url = preg_replace('/\[\[gclid\]\]/i', $tokens['gclid'], $url);
+    if ($tokens['utm_source'])
+        $url = preg_replace('/\[\[utm_source\]\]/i', $tokens['utm_source'], $url);
+    if ($tokens['utm_medium'])
+        $url = preg_replace('/\[\[utm_medium\]\]/i', $tokens['utm_medium'], $url);
+    if ($tokens['utm_campaign'])
+        $url = preg_replace('/\[\[utm_campaign\]\]/i', $tokens['utm_campaign'], $url);
+    if ($tokens['utm_term'])
+        $url = preg_replace('/\[\[utm_term\]\]/i', $tokens['utm_term'], $url);
+    if ($tokens['utm_content'])
+        $url = preg_replace('/\[\[utm_content\]\]/i', $tokens['utm_content'], $url);
+    if ($tokens['subid'])
+        $url = preg_replace('/\[\[subid\]\]/i', $tokens['subid'], $url);
+    if ($tokens['t202kw'])
+        $url = preg_replace('/\[\[t202kw\]\]/i', $tokens['t202kw'], $url);
+    if ($tokens['payout'])
+        $url = preg_replace('/\[\[payout\]\]/i', $tokens['payout'], $url);
+    if ($tokens['random'])
+        $url = preg_replace('/\[\[random\]\]/i', $tokens['random'], $url);
+    if ($tokens['cpc'])
+        $url = preg_replace('/\[\[cpc\]\]/i', $tokens['cpc'], $url);
+    if ($tokens['cpc2'])
+        $url = preg_replace('/\[\[cpc2\]\]/i', $tokens['cpc2'], $url);
+    if ($tokens['timestamp'])
+        $url = preg_replace('/\[\[timestamp\]\]/i', $tokens['timestamp'], $url);
+    if ($tokens['country'])
+        $url = preg_replace('/\[\[country\]\]/i', $tokens['country'], $url);
+    if ($tokens['country_code'])
+        $url = preg_replace('/\[\[country_code\]\]/i', $tokens['country_code'], $url);
+    if ($tokens['region'])
+        $url = preg_replace('/\[\[region\]\]/i', $tokens['region'], $url);
+    if ($tokens['city'])
+        $url = preg_replace('/\[\[city\]\]/i', $tokens['city'], $url);
+    if ($tokens['referer']) {
+        $url = preg_replace('/\[\[referer\]\]/i', $tokens['referer'], $url);
+        $url = preg_replace('/\[\[referrer\]\]/i', $tokens['referer'], $url);
+    }
+    if ($tokens['sourceid'])
+        $url = preg_replace('/\[\[sourceid\]\]/i', $tokens['sourceid'], $url);
     
     return $url;
 }
@@ -1846,7 +1905,7 @@ function getSplitTestValue(array $values)
 }
 
 function get_absolute_url() {
-    return substr(substr(dirname( __FILE__ ), 0,-10),strlen($_SERVER['DOCUMENT_ROOT']));
+	return substr(substr(dirname( __FILE__ ), 0,-10),strlen(realpath($_SERVER['DOCUMENT_ROOT'])));
 }
 
 function getTrackingDomain() {

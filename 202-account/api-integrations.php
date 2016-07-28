@@ -6,7 +6,7 @@ include_once(substr(dirname( __FILE__ ), 0,-12) . '/202-config/clickserver_api_m
 AUTH::require_user();
 
 $strProtocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
-
+$mysql['add_dni'] = $db->real_escape_string($_GET['add_dni_network']);
 $slack = false;
 $mysql['user_own_id'] = $db->real_escape_string($_SESSION['user_own_id']);
 $user_sql = "SELECT 2u.user_name as username, 2up.user_slack_incoming_webhook AS url, 2u.install_hash FROM 202_users AS 2u INNER JOIN 202_users_pref AS 2up ON (2up.user_id = 1) WHERE 2u.user_id = '".$mysql['user_own_id']."'";
@@ -14,7 +14,6 @@ $user_results = $db->query($user_sql);
 $user_row = $user_results->fetch_assoc();
 $username = $user_row['username'];
 $editing_dni_network = false;
-
 $dniNetworks = getAllDniNetworks($user_row['install_hash']);
 $dniProcesing = array('host' => getDNIHost(), 'install_hash' => $user_row['install_hash'], 'networks' => array());
 
@@ -224,7 +223,7 @@ template_top('API Integrations',NULL,NULL,NULL);
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-6">
-				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/dni.jpg"></span> Direct Network Integration</h6>
+				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/dni.jpg"></span> Direct Network Integration <?php showHelp("dni"); ?></h6>
 			</div>
 			<div class="col-xs-6">
 			<?php if($error['dni_network']) { ?>
@@ -247,7 +246,7 @@ template_top('API Integrations',NULL,NULL,NULL);
 			<div class="col-xs-12">
 				<div class="panel panel-default account_left">
 					<div class="panel-body">
-					    If you wish to search, apply and setup offer directly from your Prosper202 dashboard, use Direct Network Integration to link Prosper202 and your network together!
+					    If you wish to search, apply and setup offers directly from your Prosper202 dashboard, use Direct Network Integration to link Prosper202 and your network together! <a href="http://prosper.tracking202.com/blog/new-super-fast-offer-setup-with-prosper202-pro-dni" target="_blank">Read More...</a>
 					</div>
 				</div>
 			</div>
@@ -308,13 +307,14 @@ template_top('API Integrations',NULL,NULL,NULL);
 				    <select name="dni_network" class="form-control input-sm">
 						<option value="">Select network</option>
 						<?php foreach ($dniNetworks as $dninetwork) { ?>
-							<option value="<?php echo $dninetwork['networkId'];?>" data-type="<?php echo $dninetwork['networkType'];?>" <?php if($edit_dni_row['networkId'] == $dninetwork['networkId']) echo 'selected';?>><?php echo $dninetwork['name'];?> (<?php echo $dninetwork['networkType'];?>)</option>
+							<option value="<?php echo $dninetwork['networkId'];?>" data-type="<?php echo $dninetwork['networkType'];?>" <?php if($edit_dni_row['networkId'] == $dninetwork['networkId'] || $mysql['add_dni'] == $dninetwork['networkId']) echo 'selected';?>><?php echo $dninetwork['name'];?> (<?php echo $dninetwork['networkType'];?>)</option>
 						<?php } ?>
 					</select>
+					
 			    </div>
 			    <div class="<?php if ($editing_dni_network) { if ($edit_dni_row['type'] == 'HasOffers') echo 'col-xs-7'; else echo 'col-xs-5';} else {echo 'col-xs-7';} ?>" id="dni_api_key_input_group" style="padding: 0px; padding-right: 5px;">
 				    <label class="sr-only" for="dni_network_api_key">Add API key</label>
-				    <input type="text" name="dni_network_api_key" class="form-control input-sm" placeholder="API Key" value="<?php echo $edit_dni_row['apiKey'];?>">
+				    <input type="text" name="dni_network_api_key" class="form-control input-sm" placeholder="API Key" value="<?php echo $edit_dni_row['apiKey'];?>"><p><div id="dniInfo"></div>
 			    </div>
 			    <div class="col-xs-2" id="dni_affiliate_id_input_group" style="<?php if($editing_dni_network) { if ($edit_dni_row['type'] == 'HasOffers') echo 'display:none;'; } else {echo 'display:none;';}?> padding: 0px; padding-right: 5px;">
 				    <label class="sr-only" for="dni_network_affiliate_id">Add Affiliate ID</label>
@@ -333,7 +333,7 @@ template_top('API Integrations',NULL,NULL,NULL);
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-6">
-				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/clickbank.png"></span> ClickBank Sales Notification</h6>
+				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/clickbank.png"></span> ClickBank Sales Notification <?php showHelp("clickbank"); ?></h6>
 			</div>
 			<div class="col-xs-6">
 			<?php if($change_cb_key) { ?>
@@ -437,7 +437,7 @@ if (extension_loaded('mcrypt')) {
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-4">
-				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/slack.png"></span> Slack Integration</h6>
+				<h6><span><img src="<?php echo get_absolute_url();?>202-img/icons/integrations/slack.png"></span> Slack Integration <?php showHelp("slack"); ?></h6>
 			</div>
 			<div class="col-xs-8">
 			<?php if($change_user_slack_incoming_webhook) { ?>
@@ -477,7 +477,7 @@ if (extension_loaded('mcrypt')) {
 			<div class="col-xs-9">
 
 				<small>
-					<em><?php echo $strProtocol.''.getTrackingDomain().get_absolute_url().'/tracking202/static/slack.php';?></em>
+					<em><?php echo $strProtocol.''.getTrackingDomain().get_absolute_url().'tracking202/static/slack.php';?></em>
 				</small>
 
 					<input type="hidden" name="change_user_slack_incoming_webhook" value="1" />
@@ -530,8 +530,29 @@ $(document).ready(function() {
 		    });
 	  	});
 	}
+	$('select[name=dni_network]').trigger("change");
 });
 </script>
-<?php } ?>
+<?php } else {?>
+<script type="text/javascript">
 
+$(document).ready(function() {
+//manually trigger the change function
+	$('select[name=dni_network]').trigger("change");
+
+	
+	
+});
+	
+</script>
+<?php }?>
+<script>
+dniNetworks= <?php echo json_encode(getAllDniNetworks($user_row['install_hash'])); ?>;
+function dni(){
+	var selectedNetwork = $('select[name=dni_network] option:selected').val()
+	var dniNetwork=$(dniNetworks).filter(function (i,n){return n.networkId===selectedNetwork});
+    var dniInfo='<small> <img src="'+dniNetwork[0].favIconUrl+'" width="16"> <strong>'+dniNetwork[0].name+'</strong><br><br>'+dniNetwork[0].shortDescription+' <br><br><a href="'+dniNetwork[0].websiteURL+'" target="_blank" class="btn btn-xs btn-info btn-block">Get An Account with '+dniNetwork[0].name+'</a></small>'
+	$("#dniInfo").html(dniInfo);
+}	
+</script>
 <?php template_bottom();

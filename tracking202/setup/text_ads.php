@@ -270,7 +270,7 @@ template_top('Text Ads Setup',NULL,NULL,NULL);  ?>
 	<div class="col-xs-12">
 		<div class="row">
 			<div class="col-xs-5">
-				<h6>Text Ad Setup (optional)</h6>
+				<h6>Text Ad Setup (optional) <?php showHelp("step5"); ?></h6>
 			</div>
 			<div class="col-xs-7">
 				<div class="<?php if($error) echo "error"; else echo "success";?> pull-right" style="margin-top: 20px;">

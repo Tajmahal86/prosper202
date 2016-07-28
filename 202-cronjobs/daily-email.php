@@ -19,8 +19,8 @@
 	if (!$user_row['user_daily_email']) {
 		die();
 	}
-
-	$data = array('to' => $user_row['user_email'], 'domain' => getTrackingDomain(), 'campaigns' => array());
+    $domain = rtrim($protocol . '' . getTrackingDomain(). get_absolute_url(), '/');
+	$data = array('to' => $user_row['user_email'], 'domain' => $domain, 'campaigns' => array());
 	$ids = array();
 
 	$time['from_today'] = mktime(0,0,0,date('m',time()),date('d',time()),date('Y',time()));

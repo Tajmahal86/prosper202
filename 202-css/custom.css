@@ -952,3 +952,34 @@ small, .small {
 .select2-container--default .select2-selection--single .select2-selection__rendered{
 	line-height: 24px;
 }
+
+.alertaccordion > .panel-default {
+  border-color: #EBEBEB;
+}
+
+.alertaccordion > .panel-default > .panel-heading {
+  background-color: #FFFFFF;
+}
+
+.alertaccordion > .panel-default > .panel-heading > .panel-title {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  color: #E64C3C;
+}
+
+.alertaccordion > .panel-default > .panel-heading > .panel-title > a:hover {
+  color: #E64C3C;
+}
+
+.alertaccordion > .panel-default > .panel-heading > .panel-title > a:active {
+  color: #E64C3C;
+}
+
+.alertaccordion > .panel-default > .panel-heading > .panel-title > a:focus {
+  color: #E64C3C;
+}
+
+.alertaccordion > .panel-default>.panel-heading+.panel-collapse>.panel-body {
+  border-top-color: #EBEBEB;
+}
